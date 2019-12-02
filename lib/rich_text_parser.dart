@@ -788,14 +788,18 @@ class HtmlRichTextParser extends StatelessWidget {
                     },
                   ));
                 } else {
+                  var src = node.attributes['src'];
+                  if (imageProperties.baseUrl.isNotEmpty && src.startsWith('/')) {
+                    src = imageProperties.baseUrl + src;
+                  }
                   precacheImage(
-                    NetworkImage(node.attributes['src']),
+                    NetworkImage(src),
                     buildContext,
                     onError: onImageError ?? (_, __) {},
                   );
                   parseContext.rootWidgetList.add(GestureDetector(
                     child: Image.network(
-                      node.attributes['src'],
+                      src,
                       frameBuilder: (context, child, frame, _) {
                         if (node.attributes['alt'] != null && frame == null) {
                           return BlockText(
@@ -835,7 +839,7 @@ class HtmlRichTextParser extends StatelessWidget {
                     ),
                     onTap: () {
                       if (onImageTap != null) {
-                        onImageTap(node.attributes['src']);
+                        onImageTap(src);
                       }
                     },
                   ));
