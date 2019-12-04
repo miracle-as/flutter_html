@@ -789,7 +789,7 @@ class HtmlRichTextParser extends StatelessWidget {
                   ));
                 } else {
                   var src = node.attributes['src'];
-                  if (imageProperties.baseUrl.isNotEmpty && src.startsWith('/')) {
+                  if (imageProperties != null && imageProperties.baseUrl.isNotEmpty && src.startsWith('/')) {
                     src = imageProperties.baseUrl + src;
                   }
                   precacheImage(
