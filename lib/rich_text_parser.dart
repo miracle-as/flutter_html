@@ -817,7 +817,7 @@ class HtmlRichTextParser extends StatelessWidget {
                       },
                       width: (width ?? -1) > 0 ? width : null,
                       height: (height ?? -1) > 0 ? height : null,
-                      scale: imageProperties?.scale ?? 1.0,
+                      scale: imageProperties?.scale ?? null,
                       matchTextDirection:
                           imageProperties?.matchTextDirection ?? false,
                       centerSlice: imageProperties?.centerSlice,
