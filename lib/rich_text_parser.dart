@@ -341,6 +341,13 @@ class HtmlRichTextParser extends StatelessWidget {
   Widget getRichWidget(TextSpan span, {TextAlign textAlign}) {
     textAlign = textAlign == null ? TextAlign.start : textAlign;
 
+    if (span.children.length > 0) {
+      return RichText(
+        text: span,
+        textAlign: textAlign,
+      );
+    }
+
     if (selectableText) {
       return SelectableText.rich(
         span,
