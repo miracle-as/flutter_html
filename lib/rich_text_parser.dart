@@ -80,7 +80,7 @@ class LinkBlock extends Container {
 }
 
 class BlockText extends StatelessWidget {
-  final Widget child;
+  final RichText child;
   final EdgeInsets padding;
   final EdgeInsets margin;
   final Decoration decoration;
@@ -165,7 +165,6 @@ class HtmlRichTextParser extends StatelessWidget {
     this.imageProperties,
     this.onImageTap,
     this.showImages = true,
-    this.selectableText = true,
   });
 
   final double indentSize = 10.0;
@@ -182,7 +181,6 @@ class HtmlRichTextParser extends StatelessWidget {
   final ImageProperties imageProperties;
   final OnImageTap onImageTap;
   final bool showImages;
-  final bool selectableText;
 
   // style elements set a default style
   // for all child nodes
@@ -321,7 +319,8 @@ class HtmlRichTextParser extends StatelessWidget {
     List<Widget> children = [];
     widgetList.forEach((dynamic w) {
       if (w is BlockText) {
-        TextSpan childTextSpan = getTextSpan(w.child);
+        if (w.child.text == null) return;
+        TextSpan childTextSpan = w.child.text;
         if ((childTextSpan.text == null || childTextSpan.text.isEmpty) &&
             (childTextSpan.children == null || childTextSpan.children.isEmpty))
           return;
@@ -336,44 +335,6 @@ class HtmlRichTextParser extends StatelessWidget {
     return Column(
       children: children,
     );
-  }
-
-  Widget getRichWidget(TextSpan span, {TextAlign textAlign}) {
-    textAlign = textAlign == null ? TextAlign.start : textAlign;
-
-    if (span.children.length > 0) {
-      return RichText(
-        text: span,
-        textAlign: textAlign,
-      );
-    }
-
-    if (selectableText) {
-      return SelectableText.rich(
-        span,
-        textAlign: textAlign,
-        toolbarOptions: ToolbarOptions(copy: true),
-      );
-    } else {
-      return RichText(
-        text: span,
-        textAlign: textAlign,
-      );
-    }
-  }
-
-  TextSpan getTextSpan(Widget widget) {
-    var textSpan = TextSpan();
-    if (widget is RichText) {
-      if (widget.text != null) {
-        textSpan = widget.text;
-      }
-    } else if (widget is SelectableText) {
-      if (widget.textSpan != null) {
-        textSpan = widget.textSpan;
-      }
-    }
-    return textSpan;
   }
 
   // THE WORKHORSE FUNCTION!!
@@ -466,12 +427,15 @@ class HtmlRichTextParser extends StatelessWidget {
                 left: parseContext.indentLevel * indentSize),
             padding: EdgeInsets.all(2.0),
             decoration: decoration,
-            child: getRichWidget(span, textAlign: TextAlign.left),
+            child: RichText(
+              textAlign: TextAlign.left,
+              text: span,
+            ),
           );
           parseContext.rootWidgetList.add(blockText);
         } else {
           parseContext.rootWidgetList.add(BlockText(
-            child: getRichWidget(span),
+            child: RichText(text: span),
             shrinkToFit: shrinkToFit,
           ));
         }
@@ -643,9 +607,7 @@ class HtmlRichTextParser extends StatelessWidget {
                   shrinkToFit: shrinkToFit,
                   margin: EdgeInsets.only(
                       left: parseContext.indentLevel * indentSize, top: 10.0),
-                  child: RichText(
-                    text: span,
-                  ),
+                  child: RichText(text: span),
                 );
                 parseContext.rootWidgetList.add(blockElement);
                 nextContext.inBlock = true;
@@ -826,8 +788,7 @@ class HtmlRichTextParser extends StatelessWidget {
                     },
                   ));
                 } else if (node.attributes['src'].startsWith('asset:')) {
-                  final assetPath =
-                      node.attributes['src'].replaceFirst('asset:', '');
+                  final assetPath = node.attributes['src'].replaceFirst('asset:', '');
                   precacheImage(
                     AssetImage(assetPath),
                     buildContext,
@@ -839,12 +800,13 @@ class HtmlRichTextParser extends StatelessWidget {
                       frameBuilder: (context, child, frame, _) {
                         if (node.attributes['alt'] != null && frame == null) {
                           return BlockText(
-                            child: getRichWidget(
-                                TextSpan(
-                                  text: node.attributes['alt'],
-                                  style: nextContext.childStyle,
-                                ),
-                                textAlign: TextAlign.center),
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                text: node.attributes['alt'],
+                                style: nextContext.childStyle,
+                              ),
+                            ),
                             shrinkToFit: shrinkToFit,
                           );
                         }
@@ -880,9 +842,7 @@ class HtmlRichTextParser extends StatelessWidget {
                   ));
                 } else {
                   var src = node.attributes['src'];
-                  if (imageProperties != null &&
-                      imageProperties.baseUrl != null &&
-                      src.startsWith('/')) {
+                  if (imageProperties != null && imageProperties.baseUrl != null && src.startsWith('/')) {
                     src = imageProperties.baseUrl + src;
                   }
                   precacheImage(
@@ -896,12 +856,12 @@ class HtmlRichTextParser extends StatelessWidget {
                       frameBuilder: (context, child, frame, _) {
                         if (node.attributes['alt'] != null && frame == null) {
                           return BlockText(
-                            child: getRichWidget(
-                              TextSpan(
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
                                 text: node.attributes['alt'],
                                 style: nextContext.childStyle,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                             shrinkToFit: shrinkToFit,
                           );
@@ -952,8 +912,8 @@ class HtmlRichTextParser extends StatelessWidget {
               shrinkToFit: shrinkToFit,
               margin: EdgeInsets.only(
                   left: parseContext.indentLevel * indentSize, top: 3.0),
-              child: getRichWidget(
-                TextSpan(
+              child: RichText(
+                text: TextSpan(
                   text: '$leadingChar  ',
                   style: DefaultTextStyle.of(buildContext).style,
                   children: <TextSpan>[
@@ -963,7 +923,7 @@ class HtmlRichTextParser extends StatelessWidget {
               ),
             );
             parseContext.rootWidgetList.add(blockText);
-            nextContext.parentElement = getTextSpan(blockText.child);
+            nextContext.parentElement = blockText.child.text;
             nextContext.spansOnly = true;
             nextContext.inBlock = true;
             break;
@@ -1031,17 +991,17 @@ class HtmlRichTextParser extends StatelessWidget {
                   : EdgeInsets.zero,
               padding: EdgeInsets.all(2.0),
               decoration: decoration,
-              child: getRichWidget(
-                TextSpan(
+              child: RichText(
+                textAlign: textAlign,
+                text: TextSpan(
                   text: '',
                   style: nextContext.childStyle,
                   children: <TextSpan>[],
                 ),
-                textAlign: textAlign,
               ),
             );
             parseContext.rootWidgetList.add(blockText);
-            nextContext.parentElement = getTextSpan(blockText.child);
+            nextContext.parentElement = blockText.child.text;
             nextContext.spansOnly = true;
             nextContext.inBlock = true;
         }
