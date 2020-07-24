@@ -15,7 +15,7 @@ class ImageProperties {
   final bool matchTextDirection;
   final FilterQuality filterQuality;
   final double scale;
-  final baseUrl;
+  final String baseUrl;
 
   const ImageProperties({
     this.scale = 1,
