@@ -165,6 +165,7 @@ class HtmlRichTextParser extends StatelessWidget {
     this.imageProperties,
     this.onImageTap,
     this.showImages = true,
+    this.blockPadding,
   });
 
   final double indentSize = 10.0;
@@ -181,6 +182,7 @@ class HtmlRichTextParser extends StatelessWidget {
   final ImageProperties imageProperties;
   final OnImageTap onImageTap;
   final bool showImages;
+  final EdgeInsetsGeometry blockPadding;
 
   // style elements set a default style
   // for all child nodes
@@ -425,7 +427,7 @@ class HtmlRichTextParser extends StatelessWidget {
                 top: 8.0,
                 bottom: 8.0,
                 left: parseContext.indentLevel * indentSize),
-            padding: EdgeInsets.all(2.0),
+            padding: blockPadding != null ? blockPadding : EdgeInsets.all(2.0),
             decoration: decoration,
             child: RichText(
               textAlign: TextAlign.left,
@@ -989,7 +991,7 @@ class HtmlRichTextParser extends StatelessWidget {
                           bottom: 8.0,
                           left: parseContext.indentLevel * indentSize)
                   : EdgeInsets.zero,
-              padding: EdgeInsets.all(2.0),
+              padding: blockPadding != null ? blockPadding : EdgeInsets.all(2.0),
               decoration: decoration,
               child: RichText(
                 textAlign: textAlign,
