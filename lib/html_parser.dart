@@ -268,6 +268,7 @@ class HtmlParser extends StatelessWidget {
     tree = _processInternalWhitespace(tree);
     tree = _processInlineWhitespace(tree);
     tree = _removeEmptyElements(tree);
+    tree = _removeEmptySpaces(tree);
     tree = _processListCharacters(tree);
     tree = _processBeforesAndAfters(tree);
     tree = _collapseMargins(tree);
@@ -764,6 +765,33 @@ class HtmlParser extends StatelessWidget {
           (child is TextContentElement && child.text == '\n'));
     });
     tree.children.removeWhere((element) => toRemove.contains(element));
+
+    return tree;
+  }
+
+  /// [removeEmptySpaces] recursively removes empty spaces.
+  ///
+  /// An empty space is an line break followed by a [TextContentElement] that is not empty
+  static StyledElement _removeEmptySpaces(StyledElement tree) {
+    
+    bool lastChildBlock = true;
+    tree.children.forEach((child) {
+     
+      if (child is TextContentElement &&
+          child.style.whiteSpace != WhiteSpace.PRE &&
+          tree.style.display == Display.BLOCK &&
+          child.text!.trim().isNotEmpty &&
+          lastChildBlock) {
+        child.text = child.text!.trimLeft();
+      } else {
+        _removeEmptySpaces(child);
+      }
+
+      // This is used above to check if the previous element is a block element or a line break.
+      lastChildBlock = child is TextContentElement 
+        && child.text == '\n' 
+        && child.element!.localName == 'br';
+    });
 
     return tree;
   }
