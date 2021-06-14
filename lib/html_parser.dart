@@ -213,6 +213,30 @@ class HtmlParser extends StatelessWidget {
     }
   }
 
+
+  /// [removeOuterMargin] removes the top and bottom margins of the first and 
+  /// last element, we want the user to make that choice
+  static StyledElement _removeOuterMargin(StyledElement tree, StyledElement? parent) {
+    
+    tree.children.forEach((c) => _removeOuterMargin(c, tree));
+
+    //The root boxes do not have margin.
+    if (tree.name == '[Tree Root]' || tree.name == 'html') {
+      return tree;
+    }
+
+    // body is always the outer parent
+    if (parent != null && parent.name == 'body' && parent.children.first == tree) {
+      tree.style.margin = tree.style.margin?.copyWith(top: 0) ?? EdgeInsets.only(top: 0);
+    }
+
+    if (parent != null && parent.name == 'body' && parent.children.last == tree) {
+      tree.style.margin = tree.style.margin?.copyWith(bottom: 0) ?? EdgeInsets.only(top: 0);
+    }
+
+    return tree;
+  }
+
   static StyledElement _applyExternalCss(Map<String, Map<String, List<css.Expression>>> declarations, StyledElement tree) {
     declarations.forEach((key, style) {
       if (tree.matchesSelector(key)) {
@@ -271,6 +295,7 @@ class HtmlParser extends StatelessWidget {
     tree = _removeEmptySpaces(tree);
     tree = _processListCharacters(tree);
     tree = _processBeforesAndAfters(tree);
+    tree = _removeOuterMargin(tree, null);
     tree = _collapseMargins(tree);
     tree = _processFontSize(tree);
     return tree;
