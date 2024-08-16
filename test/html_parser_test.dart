@@ -18,7 +18,8 @@ void main() {
       ),
     );
   });
-  testWidgets('Test new parser (hacky workaround to get BuildContext)', (WidgetTester tester) async {
+  testWidgets('Test new parser (hacky workaround to get BuildContext)',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       Builder(
         builder: (BuildContext context) {
@@ -36,8 +37,7 @@ void testNewParser(BuildContext context) {
   HtmlParser.parseHTML("<b>Hello, World!</b>");
 
   StyledElement tree = HtmlParser.lexDomTree(
-    HtmlParser.parseHTML(
-        "Hello! <b>Hello, World!</b><i>Hello, New World!</i>"),
+    HtmlParser.parseHTML("Hello! <b>Hello, World!</b><i>Hello, New World!</i>"),
     [],
     [],
     null,
