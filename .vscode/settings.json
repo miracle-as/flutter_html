@@ -1,6 +1,6 @@
 {
   "editor.suggestSelection": "first",
-  "dart.flutterSdkPath": ".fvm/versions/3.10.0",
+  "dart.flutterSdkPath": ".fvm/versions/3.22.3",
   "search.exclude": {
     "**/.fvm": true
   }
